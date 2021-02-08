@@ -3,3 +3,6 @@
 
 # Ada Library Information
 *.ali
+
+# Tmp
+cc3df4revo/obj/*
