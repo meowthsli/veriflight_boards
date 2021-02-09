@@ -21,9 +21,9 @@ package cc3df4revo.Board is
 
    --  SBUS1 : SBUS_RXTX (USART_Ptr => USART_1'Access);
    SBUS1 : USART renames USART_1;
-   NRF_RX        : GPIO_Point renames PA9;
-   NRF_TX        : GPIO_Point renames PA10;
-   NRF_USART_AF  : GPIO_Alternate_Function renames GPIO_AF_USART1_7;
+   SBUS_TX        : GPIO_Point renames PA9;
+   SBUS_RX        : GPIO_Point renames PA10;
+   SBUS_AF  : GPIO_Alternate_Function renames GPIO_AF_USART1_7;
 
    --
    --  Board initialization
