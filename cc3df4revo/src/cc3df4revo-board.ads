@@ -17,19 +17,20 @@ package cc3df4revo.Board is
    --
    --  mpu
    --  usart (for s.bus)
-   type SBUS_RXTX (USART_Ptr : not null access USART) is tagged limited null record;
-   procedure Send (sbus : in out SBUS_RXTX);
+   --  type SBUS_RXTX (USART_Ptr : not null access USART) is limited null record;
 
-   SBUS1 : SBUS_RXTX (USART_Ptr => USART_1'Access);
-
+   --  SBUS1 : SBUS_RXTX (USART_Ptr => USART_1'Access);
+   SBUS1 : USART renames USART_1;
+   NRF_RX        : GPIO_Point renames PA9;
+   NRF_TX        : GPIO_Point renames PA10;
+   NRF_USART_AF  : GPIO_Alternate_Function renames GPIO_AF_USART1_7;
 
    --
-   --  SPI startup (for MPU6000);
+   --  Board initialization
    --
-   procedure Initialize_SPI;
-   procedure Initialize_SBUS;
+   procedure Initialize;
 
-
+private
 
    --
    --  Motor pins
