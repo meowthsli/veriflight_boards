@@ -4,9 +4,9 @@
 with STM32; use STM32;
 with STM32.Device; use STM32.Device;
 with STM32.GPIO; use STM32.GPIO;
---  with STM32.SPI; use STM32.SPI;
 with STM32.USARTs; use STM32.USARTs;
 with STM32.Timers; use STM32.Timers;
+with STM32.PWM; use STM32.PWM;
 
 --  with Ravenscar_Time;
 package cc3df4revo.Board is
@@ -24,6 +24,7 @@ package cc3df4revo.Board is
    SBUS_TX        : GPIO_Point renames PA9;
    SBUS_RX        : GPIO_Point renames PA10;
    SBUS_AF  : GPIO_Alternate_Function renames GPIO_AF_USART1_7;
+   M1 : PWM_Modulator;
 
    --
    --  Board initialization

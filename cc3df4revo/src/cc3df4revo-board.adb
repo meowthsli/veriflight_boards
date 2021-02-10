@@ -73,6 +73,14 @@ package body cc3df4revo.Board is
          end if;
       end;
 
+      Configure_PWM_Timer (MOTOR_123_Timer'Access, 2_000_000); --  2kHz
+      M1.Attach_PWM_Channel
+        (MOTOR_123_Timer'Access,
+         MOTOR_1_Channel,
+         MOTOR_1,
+         MOTOR_1_AF);
+      M1.Enable_Output;
+      M1.Set_Duty_Cycle (0);
 
    end Initialize;
 end cc3df4revo.Board;
