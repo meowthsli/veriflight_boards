@@ -110,5 +110,5 @@ library project cc3df4revo is
 --    Src_Dirs_Root & "/middleware/src/utils", -- From middleware config
 --    Src_Dirs_Root & "/middleware/src/monitor", -- From middleware config
     Src_Dirs_Root & "/middleware/src/ravenscar-common", -- From middleware config
-     "src/", ".");
+     "src/**", ".");
 end cc3df4revo;
