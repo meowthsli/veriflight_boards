@@ -49,7 +49,7 @@ library project cc3df4revo is
          "-gnatQ",   -- Don't quit. Generate ALI and tree files even if illegalities
          "-gnatw.X", -- Disable warnings for No_Exception_Propagation
          "-ffunction-sections", -- Create a linker section for each function
-         "-fdata-sections");  -- Create a linker section for each data
+         "-fdata-sections", "-mfloat-abi=hard", "-mfpu=fpv4-sp-d16");  -- Create a linker section for each data
    end Compiler;
 
    for Languages use ("Ada");
