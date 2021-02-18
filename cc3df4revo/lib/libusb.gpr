@@ -1,0 +1,16 @@
+project Libusb is
+
+   for Externally_Built use "True";
+   for Source_Files use ();
+   for Library_Dir use ".";
+   for Library_Name use "usb";
+   for Library_Kind use "static";
+   for Target use "arm-eabi";
+   for Runtime ("ada") use "ravenscar-full-stm32f4";
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-mfloat-abi=hard", "-mfpu=fpv4-sp-d16", "-g");
+   end Compiler;
+
+end Libusb;
+

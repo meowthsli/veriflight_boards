@@ -1,7 +1,23 @@
 with STM32.SPI; use STM32.SPI;
 with HAL.SPI;
+with Interfaces; use Interfaces;
+with Interfaces.C;
+with Ada.Interrupts.Names;
+with Cortex_M.NVIC; use Cortex_M.NVIC;
+with STM32_SVD.RCC; use STM32_SVD.RCC;
+with Config;
 
 package body cc3df4revo.Board is
+   --
+   --  USB
+   --
+   function usb_setup return Interfaces.C.int
+     with
+       Import        => True,
+       Convention    => C,
+       External_Name => "usb_setup";
+
+   unused : Interfaces.C.int;
    procedure Initialize is
    begin
       ----
@@ -81,6 +97,35 @@ package body cc3df4revo.Board is
          MOTOR_1_AF);
       M1.Enable_Output;
       M1.Set_Duty_Cycle (0);
+
+      --
+      --  USB
+      --
+      RCC_Periph.AHB2ENR.OTGFSEN := True;
+      unused := usb_setup;
+      Cortex_M.NVIC.Enable_Interrupt (Interrupt_ID (Ada.Interrupts.Names.OTG_FS_Interrupt));
+
+      Enable_Clock (PA11);
+      Enable_Clock (PA12);
+      Enable_Clock (PA9);
+
+      Configure_IO (PA9,
+                    (Mode      => Mode_In,
+                     Resistors => Floating));
+
+      Configure_IO (PA11 & PA12,
+                    (Mode     => Mode_AF,
+                     Resistors => Floating,
+                     AF_Output_Type => Push_Pull,
+                     AF_Speed => Speed_Very_High,
+                     AF => GPIO_AF_OTG_FS_10));
+
+      Enable_Clock (Config.SIGNAL_LED);
+      Configure_IO (Config.SIGNAL_LED,
+                    Config => (Mode => Mode_Out,
+                               Resistors => Floating,
+                               Output_Type => Push_Pull,
+                               Speed => Speed_100MHz));
 
    end Initialize;
 end cc3df4revo.Board;
