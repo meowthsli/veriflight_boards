@@ -11,7 +11,7 @@ package ADL_Config is
    CPU_Core                       : constant String  := "ARM Cortex-M4F";    -- From mcu definition
    Board                          : constant String  := "Cc3df4revo";         -- From command line
    Has_ZFP_Runtime                : constant String  := "False";             -- From board definition
-   Number_Of_Interrupts           : constant         := 0;                   -- From default value
+   Number_Of_Interrupts           : constant         := 91;                   -- From default value
    High_Speed_External_Clock      : constant         := 8000000;             -- From board definition
    Max_Path_Length                : constant         := 1024;                -- From default value
    Runtime_Name_Suffix            : constant String  := "stm32f4";           -- From board definition

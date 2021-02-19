@@ -65,7 +65,7 @@ library project cc3df4revo is
 
    package Device_Configuration is
       for CPU_Name use "ARM Cortex-M4F";
-      for Number_Of_Interrupts use "0";
+      for Number_Of_Interrupts use "91";
    end Device_Configuration;
 
    Vendor                         := "STMicro";           -- From board definition
@@ -79,7 +79,7 @@ library project cc3df4revo is
    CPU_Core                       := "ARM Cortex-M4F";    -- From mcu definition
    Board                          := "cc3df4revo";         -- From command line
    Has_ZFP_Runtime                := "False";             -- From board definition
-   Number_Of_Interrupts           := "0";                 -- From default value
+   Number_Of_Interrupts           := "91";                 -- From default value
    Has_Ravenscar_SFP_Runtime      := "True";              -- From board definition
    High_Speed_External_Clock      := "8000000";           -- From board definition
    Max_Path_Length                := "1024";              -- From default value
@@ -121,5 +121,9 @@ library project cc3df4revo is
       when "Cc3d" => for Source_Dirs use Src_Dirs & "cfg/cc3d/**";
       when others => null;
    end case;
+
+   package Builder is
+      for Global_Configuration_Pragmas use "src/gnat.adc";
+   end Builder;
 
 end cc3df4revo;
