@@ -1,24 +1,47 @@
 --  with STM32.SPI; use STM32.SPI;
 --  with HAL.SPI;
-with Interfaces; use Interfaces;
-with Interfaces.C;
 with Ada.Interrupts.Names;
 with Cortex_M.NVIC; use Cortex_M.NVIC;
 with STM32_SVD.RCC; use STM32_SVD.RCC;
 with Config;
 
 package body cc3df4revo.Board is
-   --
-   --  USB
-   --
-   function usb_setup return Interfaces.C.int
-     with
-       Import        => True,
-       Convention    => C,
-       External_Name => "usb_setup";
+   package IC renames Interfaces.C;
+   package ASU renames Ada.Strings.Unbounded;
 
-   unused : Interfaces.C.int;
+   --
+   --  Doing receive (if any)
+   procedure usb_receive (message : out ASU.Unbounded_String) is
+      --  buffer : constant String := (1 .. 32 => <>);
+      --  ptr : constant IC.Strings.chars_ptr := IC.Strings.New_String (buffer);
+      size : IC.unsigned_short;
+      buffer : IC.char_array (0 .. 32);
+   begin
+      size := ada_usbapi_rx (buffer);
+      pragma Unreferenced (size);
+      declare
+         str : constant String := IC.To_Ada (buffer, True);
+      begin
+         if str'Length = 0 then
+            message := ASU.Null_Unbounded_String;
+         else
+            message := ASU.To_Unbounded_String (str);
+         end if;
+      end;
+   end usb_receive;
+
+   --
+   --  Doing sending
+   procedure usb_transmit (message : in String) is
+   begin
+      ada_usbapi_tx (message'Address, message'Length);
+   end usb_transmit;
+
+   --
+   --  Initialization
+   --
    procedure Initialize is
+      unused : Interfaces.C.int;
    begin
       ----
       --  UART pins
@@ -117,7 +140,7 @@ package body cc3df4revo.Board is
                      AF_Output_Type => Push_Pull,
                      AF_Speed => Speed_Very_High,
                      AF => GPIO_AF_OTG_FS_10));
-      unused := usb_setup;
+      unused := ada_usbapi_setup;
 
       Enable_Clock (Config.SIGNAL_LED);
       Configure_IO (Config.SIGNAL_LED,

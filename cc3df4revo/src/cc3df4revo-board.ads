@@ -1,16 +1,20 @@
 --  This package will provide declarations for devices
 --  and configuration routines on the Flip32cc3df4revo board
-
+with System;
 with STM32; use STM32;
 with STM32.Device; use STM32.Device;
 with STM32.GPIO; use STM32.GPIO;
 --  with STM32.USARTs; use STM32.USARTs;
 --  with STM32.Timers; use STM32.Timers;
 --  with STM32.PWM; use STM32.PWM;
+with Interfaces; use Interfaces;
+with Interfaces.C;
+--  with Interfaces.C.Strings;
+with Ada.Strings; use Ada.Strings;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 --  with Ravenscar_Time;
 package cc3df4revo.Board is
-   pragma SPARK_Mode (On);
    --
    --  Devices
    --
@@ -30,7 +34,36 @@ package cc3df4revo.Board is
    --
    procedure Initialize;
 
+   subtype USB_Transmission is String (1 .. 32);
+
+   --  Doing receive
+   procedure usb_receive (message : out Unbounded_String);
+
+   --  Doing transmission
+   procedure usb_transmit (message : String);
+
 private
+
+   function ada_usbapi_rx (buffer : out Interfaces.C.char_array) return Interfaces.C.unsigned_short
+     with
+       Import        => True,
+       Convention    => C,
+       External_Name => "usbapi_rx";
+
+   procedure ada_usbapi_tx (buffer : System.Address; len : Interfaces.C.unsigned_short)
+     with
+       Import        => True,
+       Convention    => C,
+       External_Name => "usbapi_tx";
+
+   --
+   --  USB util
+   --
+   function ada_usbapi_setup return Interfaces.C.int
+     with
+       Import        => True,
+       Convention    => C,
+       External_Name => "usbapi_setup";
 
    --
    --  Motor pins
