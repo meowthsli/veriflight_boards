@@ -9,12 +9,11 @@ with STM32.GPIO; use STM32.GPIO;
 --  with STM32.PWM; use STM32.PWM;
 with Interfaces; use Interfaces;
 with Interfaces.C;
---  with Interfaces.C.Strings;
-with Ada.Strings; use Ada.Strings;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Ada.Strings.Bounded;
 
 --  with Ravenscar_Time;
 package cc3df4revo.Board is
+   package ASB32 is new Ada.Strings.Bounded.Generic_Bounded_Length (Max => 32);
    --
    --  Devices
    --
@@ -34,10 +33,8 @@ package cc3df4revo.Board is
    --
    procedure Initialize;
 
-   subtype USB_Transmission is String (1 .. 32);
-
    --  Doing receive
-   procedure usb_receive (message : out Unbounded_String);
+   procedure usb_receive (message : out ASB32.Bounded_String);
 
    --  Doing transmission
    procedure usb_transmit (message : String);
