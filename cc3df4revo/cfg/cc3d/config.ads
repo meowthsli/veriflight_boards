@@ -3,7 +3,7 @@ with STM32.Device; use STM32.Device;
 with STM32.SPI; use STM32.SPI;
 
 package Config is
-   SIGNAL_LED : GPIO_Point renames PD13; --  red led
+   SIGNAL_LED : GPIO_Point renames PB5; --  red led
 
    SPI_Accel_Port : SPI_Port renames STM32.Device.SPI_1;
    SCLK : GPIO_Point renames STM32.Device.PA5;
@@ -11,5 +11,5 @@ package Config is
    MOSI : GPIO_Point renames STM32.Device.PA7;
    CS_ACCEL : GPIO_Point renames STM32.Device.PE3;
 
-   Disco : Boolean := True;
+   Disco : Boolean := False;
 end Config;

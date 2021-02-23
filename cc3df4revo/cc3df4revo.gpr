@@ -107,11 +107,12 @@ library project cc3df4revo is
     Src_Dirs_Root & "/arch/ARM/STM32/drivers/uart_stm32f4/", -- From MCU definition
     Src_Dirs_Root & "/arch/ARM/STM32/drivers/sd/", -- From MCU definition
     Src_Dirs_Root & "/arch/ARM/STM32/drivers/sd/sdio/", -- From MCU definition
-    Src_Dirs_Root & "/middleware/src/BLE", -- From middleware config
+--    Src_Dirs_Root & "/middleware/src/BLE", -- From middleware config
     Src_Dirs_Root & "/middleware/src/sdmmc", -- From middleware config
 --    Src_Dirs_Root & "/middleware/src/utils", -- From middleware config
 --    Src_Dirs_Root & "/middleware/src/monitor", -- From middleware config
-    Src_Dirs_Root & "/middleware/src/ravenscar-common", -- From middleware config
+    Src_Dirs_Root & "/components/src/motion/lis3dsh",
+                Src_Dirs_Root & "/middleware/src/ravenscar-common", -- From middleware config
                         "src/**", ".");
    type Board_Type is ("Discovery", "Cc3d");
    boardType : Board_Type := external ("BOARD_TYPE", "Discovery");

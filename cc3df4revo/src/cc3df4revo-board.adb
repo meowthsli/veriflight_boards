@@ -4,6 +4,8 @@ with Ada.Interrupts.Names;
 with Cortex_M.NVIC; use Cortex_M.NVIC;
 with STM32_SVD.RCC; use STM32_SVD.RCC;
 with Config;
+with spi_accel;
+with Ada.Real_Time; use Ada.Real_Time;
 
 package body cc3df4revo.Board is
    package IC renames Interfaces.C;
@@ -135,5 +137,11 @@ package body cc3df4revo.Board is
                                Output_Type => Push_Pull,
                                Speed => Speed_100MHz));
       Cortex_M.NVIC.Enable_Interrupt (Interrupt_ID (Ada.Interrupts.Names.OTG_FS_Interrupt));
+
+      delay until Clock + Seconds (2); --  wait for reconnect usb
+      --
+      --  SPI init
+      --
+      spi_accel.init;
    end Initialize;
 end cc3df4revo.Board;
