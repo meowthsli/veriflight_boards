@@ -9,7 +9,7 @@ package Config is
    SCLK : GPIO_Point renames STM32.Device.PA5;
    MISO : GPIO_Point renames STM32.Device.PA6;
    MOSI : GPIO_Point renames STM32.Device.PA7;
-   CS_ACCEL : GPIO_Point renames STM32.Device.PE3;
+   CS_ACCEL : GPIO_Point renames STM32.Device.PA4;
 
    Disco : Boolean := False;
 end Config;

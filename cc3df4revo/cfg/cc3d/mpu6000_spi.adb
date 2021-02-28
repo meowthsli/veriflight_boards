@@ -14,8 +14,14 @@ package body mpu6000_spi is
    --  Constants
    --
    MPU_RA_ACCEL_XOUT_H : constant Register_Address := 16#3B#;
+   MPU_RA_GYRO_XOUT_H : constant Register_Address := 16#43#; pragma Unreferenced (MPU_RA_GYRO_XOUT_H);
    MPU_RA_PWR_MGMT_1 : constant Register_Address := 16#6B#;
+   MPU_RA_PWR_MGMT_2 : constant Register_Address := 16#6C#;
+   MPU_RA_USER_CTRL : constant Register_Address := 16#6A#;
+
    BIT_H_RESET : constant HAL.UInt8 := 16#80#;
+   MPU_CLK_SEL_PLLGYROZ : constant := 16#03#;
+   BIT_I2C_IF_DIS : constant := 16#10#;
 
    SPI_Read_Flag  : constant Register_Address := 16#80#;
    SPI_Write_Flag : constant Register_Address := 16#00#;
@@ -45,9 +51,19 @@ package body mpu6000_spi is
 
    procedure Configure (this : in out Six_Axis_Accelerometer) is
    begin
-      IO_Write (this, BIT_H_RESET, MPU_RA_PWR_MGMT_1);
+      IO_Write (this, BIT_H_RESET, MPU_RA_PWR_MGMT_1); -- reset
       delay until Clock + Microseconds (15);
-      --  TODO
+
+      IO_Write (this, BIT_I2C_IF_DIS, MPU_RA_USER_CTRL); -- disable i2c
+      delay until Clock + Microseconds (15);
+
+      IO_Write (this, 0, MPU_RA_PWR_MGMT_2);
+      delay until Clock + Microseconds (15);
+
+      IO_Write (this, MPU_CLK_SEL_PLLGYROZ, MPU_CLK_SEL_PLLGYROZ); -- use  Z-axis
+      delay until Clock + Microseconds (15);
+
+      --  TODO: setup sample rate and others
    end Configure;
 
 
@@ -93,7 +109,7 @@ package body mpu6000_spi is
       Value    : in out Read_Buffer;
       ReadAddr : Register_Address)
    is
-      Data   : SPI_Data_8b (1 .. 1);
+      Data   : SPI_Data_8b (1 .. Read_Buffer'Length);
       Status : SPI_Status;
    begin
       This.Chip_Select.Clear;
@@ -103,13 +119,13 @@ package body mpu6000_spi is
          --  No error handling...
          raise Program_Error;
       end if;
-      for i in Value'Range loop
-         This.Port.Receive (Data, Status);
-         if Status /= Ok then
-            --  No error handling...
-            raise Program_Error;
-         end if;
-         Value (i) := Data (1);
+      This.Port.Receive (Data, Status);
+      if Status /= Ok then
+         --  No error handling...
+         raise Program_Error;
+      end if;
+      for i in Read_Buffer'Range loop
+         Value (i) := Data (i);
       end loop;
       This.Chip_Select.Set;
    end IO_Read_Buffer;
