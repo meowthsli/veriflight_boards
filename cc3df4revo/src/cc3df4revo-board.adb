@@ -1,5 +1,7 @@
 --  with STM32.SPI; use STM32.SPI;
 --  with HAL.SPI;
+with usb_handler; pragma Unreferenced (usb_handler);
+
 with Ada.Interrupts.Names;
 with Cortex_M.NVIC; use Cortex_M.NVIC;
 with STM32_SVD.RCC; use STM32_SVD.RCC;

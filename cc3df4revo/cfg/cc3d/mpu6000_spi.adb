@@ -1,5 +1,6 @@
-with HAL;
+with HAL; use HAL;
 with Ada.Real_Time; use Ada.Real_Time;
+with Ada.Unchecked_Conversion;
 
 package body mpu6000_spi is
 
@@ -45,6 +46,9 @@ package body mpu6000_spi is
       Value    : in out Read_Buffer;
       ReadAddr : Register_Address);
 
+   function fuse (high : HAL.UInt8; low : HAL.UInt8) return Short_Integer
+      with Inline_Always => True;
+
    -----------------
    --  Package body
    -----------------
@@ -69,40 +73,18 @@ package body mpu6000_spi is
 
    function Read (this : in out Six_Axis_Accelerometer) return Acc_Data is
       buffer : Read_Buffer;
-      d : constant Acc_Data := Acc_Data'(others => <>);
+      d : Acc_Data := Acc_Data'(others => <>);
    begin
       IO_Read_Buffer (this, buffer, MPU_RA_ACCEL_XOUT_H); --  burst read
-      return d; --  todo
+      d.Xacc := fuse (buffer (1), buffer (0));
+      d.Yacc := fuse (buffer (3), buffer (2));
+      d.Zacc := fuse (buffer (5), buffer (4));
+      return d;
    end Read;
 
    ----------
    --  Private
    ----------
-
---     procedure IO_Read
---       (This     : in out Six_Axis_Accelerometer;
---        Value    : out HAL.UInt8;
---        ReadAddr : Register_Address)
---     is
---        Data : SPI_Data_8b (1 .. 1);
---        Status : SPI_Status;
---     begin
---        This.Chip_Select.Clear;
---        This.Port.Transmit (SPI_Data_8b'(1 => HAL.UInt8 (ReadAddr or SPI_Read_Flag)),
---                  Status);
---        if Status /= Ok then
---           --  No error handling...
---           raise Program_Error;
---        end if;
---        This.Port.Receive (Data, Status);
---        This.Chip_Select.Set;
---
---        if Status /= Ok then
---           --  No error handling...
---           raise Program_Error;
---        end if;
---        Value := Data (1);
---     end IO_Read;
 
    procedure IO_Read_Buffer
      (This     : in out Six_Axis_Accelerometer;
@@ -149,5 +131,22 @@ package body mpu6000_spi is
          raise Program_Error;
       end if;
    end IO_Write;
+
+   -------------------------------------
+   --  Utils
+   -------------------------------------
+   function fuse (high : HAL.UInt8; low : HAL.UInt8) return Short_Integer
+   is
+      ---------------------
+      -- Uint16_To_Int16 --
+      ---------------------
+      function Uint16_To_Int16 is new Ada.Unchecked_Conversion (HAL.UInt16, Short_Integer);
+      reg : HAL.UInt16;
+   begin
+      reg := HAL.Shift_Left (HAL.UInt16 (high), 8);
+      reg := reg or HAL.UInt16 (low);
+
+      return Uint16_To_Int16 (reg);
+   end fuse;
 
 end mpu6000_spi;
