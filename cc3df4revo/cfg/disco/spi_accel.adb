@@ -96,4 +96,10 @@ package body spi_accel is
                          Z => Short_Integer (axes.Z));
    end read;
 
+   function id (product : out Unsigned_8) return Unsigned_8 is
+   begin
+      product := 16#55#;
+      return 16#AA#;
+   end id;
+
 end spi_accel;

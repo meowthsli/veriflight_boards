@@ -1,5 +1,6 @@
 with HAL.SPI; use HAL.SPI;
 with HAL.GPIO; use HAL.GPIO;
+with Interfaces; use Interfaces;
 
 package mpu6000_spi is
 
@@ -16,6 +17,9 @@ package mpu6000_spi is
    procedure Configure (this : in out Six_Axis_Accelerometer);
 
    function Read (this : in out Six_Axis_Accelerometer) return Acc_Data;
+
+   function Id (this : in out Six_Axis_Accelerometer;
+               product : out Unsigned_8) return Unsigned_8;
 
 private
    type Six_Axis_Accelerometer

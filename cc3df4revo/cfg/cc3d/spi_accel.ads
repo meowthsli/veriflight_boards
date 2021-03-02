@@ -1,6 +1,7 @@
 with STM32.GPIO; use STM32.GPIO;
 with mpu6000_spi; use mpu6000_spi;
 with Config; use Config;
+with Interfaces; use Interfaces;
 --
 --  Accel is MPU 6000
 --
@@ -14,6 +15,8 @@ package spi_accel is
       end record;
 
    function read return accel_data;
+
+   function id (product : out Unsigned_8) return Unsigned_8;
 
 private
 

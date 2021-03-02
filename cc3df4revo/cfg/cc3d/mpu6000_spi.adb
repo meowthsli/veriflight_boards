@@ -9,7 +9,7 @@ package body mpu6000_spi is
    --
 
    type Register_Address is new HAL.UInt8;
-   subtype Read_Buffer is SPI_Data_8b (0 .. 5);
+   subtype Read_Buffer is SPI_Data_8b (1 .. 6);
 
    --
    --  Constants
@@ -19,6 +19,9 @@ package body mpu6000_spi is
    MPU_RA_PWR_MGMT_1 : constant Register_Address := 16#6B#;
    MPU_RA_PWR_MGMT_2 : constant Register_Address := 16#6C#;
    MPU_RA_USER_CTRL : constant Register_Address := 16#6A#;
+
+   MPU_RA_WHOAMI : constant Register_Address := 16#75#;
+   MPU_PRODUCT_ID : constant Register_Address := 16#0C#;
 
    BIT_H_RESET : constant HAL.UInt8 := 16#80#;
    MPU_CLK_SEL_PLLGYROZ : constant := 16#03#;
@@ -43,8 +46,14 @@ package body mpu6000_spi is
 
    procedure IO_Read_Buffer
      (This     : in out Six_Axis_Accelerometer;
-      Value    : in out Read_Buffer;
+      Value    : out Read_Buffer;
       ReadAddr : Register_Address);
+
+   procedure IO_Read_Value
+     (This     : in out Six_Axis_Accelerometer;
+      Value    : out HAL.UInt8;
+      ReadAddr : Register_Address);
+
 
    function fuse (high : HAL.UInt8; low : HAL.UInt8) return Short_Integer
       with Inline_Always => True;
@@ -56,16 +65,16 @@ package body mpu6000_spi is
    procedure Configure (this : in out Six_Axis_Accelerometer) is
    begin
       IO_Write (this, BIT_H_RESET, MPU_RA_PWR_MGMT_1); -- reset
-      delay until Clock + Microseconds (15);
+      delay until Clock + Milliseconds (15);
+
+      IO_Write (this, MPU_CLK_SEL_PLLGYROZ, MPU_RA_PWR_MGMT_1); -- wake up, use  Z-axis
+      delay until Clock + Milliseconds (15);
 
       IO_Write (this, BIT_I2C_IF_DIS, MPU_RA_USER_CTRL); -- disable i2c
-      delay until Clock + Microseconds (15);
+      delay until Clock + Milliseconds (15);
 
-      IO_Write (this, 0, MPU_RA_PWR_MGMT_2);
-      delay until Clock + Microseconds (15);
-
-      IO_Write (this, MPU_CLK_SEL_PLLGYROZ, MPU_CLK_SEL_PLLGYROZ); -- use  Z-axis
-      delay until Clock + Microseconds (15);
+      IO_Write (this, 0, MPU_RA_PWR_MGMT_2); -- enable all sensors
+      delay until Clock + Milliseconds (15);
 
       --  TODO: setup sample rate and others
    end Configure;
@@ -76,11 +85,24 @@ package body mpu6000_spi is
       d : Acc_Data := Acc_Data'(others => <>);
    begin
       IO_Read_Buffer (this, buffer, MPU_RA_ACCEL_XOUT_H); --  burst read
-      d.Xacc := fuse (buffer (1), buffer (0));
-      d.Yacc := fuse (buffer (3), buffer (2));
-      d.Zacc := fuse (buffer (5), buffer (4));
+      d.Xacc := fuse (buffer (1), buffer (2));
+      d.Yacc := fuse (buffer (3), buffer (4));
+      d.Zacc := fuse (buffer (5), buffer (6));
       return d;
    end Read;
+
+   function Id (this : in out Six_Axis_Accelerometer;
+                product : out Unsigned_8) return Unsigned_8 is
+      buffer : HAL.UInt8;
+      device : Unsigned_8;
+   begin
+      IO_Read_Value (this, buffer, MPU_RA_WHOAMI);
+      device := Unsigned_8 (buffer);
+      IO_Read_Value (this, buffer, MPU_PRODUCT_ID);
+      product := Unsigned_8 (buffer);
+      return device;
+   end Id;
+
 
    ----------
    --  Private
@@ -88,7 +110,7 @@ package body mpu6000_spi is
 
    procedure IO_Read_Buffer
      (This     : in out Six_Axis_Accelerometer;
-      Value    : in out Read_Buffer;
+      Value    : out Read_Buffer;
       ReadAddr : Register_Address)
    is
       Data   : SPI_Data_8b (1 .. Read_Buffer'Length);
@@ -106,11 +128,35 @@ package body mpu6000_spi is
          --  No error handling...
          raise Program_Error;
       end if;
-      for i in Read_Buffer'Range loop
-         Value (i) := Data (i);
-      end loop;
       This.Chip_Select.Set;
+      Value (1 .. 6) := Data (1 .. 6);
    end IO_Read_Buffer;
+
+
+   procedure IO_Read_Value
+     (This     : in out Six_Axis_Accelerometer;
+      Value    : out HAL.UInt8;
+      ReadAddr : Register_Address)
+   is
+      Data : SPI_Data_8b (1 .. 1);
+      Status : SPI_Status;
+   begin
+      This.Chip_Select.Clear;
+      This.Port.Transmit (SPI_Data_8b'(1 => HAL.UInt8 (ReadAddr or SPI_Read_Flag)),
+                          Status);
+      if Status /= Ok then
+         --  No error handling...
+         raise Program_Error;
+      end if;
+      This.Port.Receive (Data, Status);
+      This.Chip_Select.Set;
+
+      if Status /= Ok then
+         --  No error handling...
+         raise Program_Error;
+      end if;
+      Value := Data (1);
+   end IO_Read_Value;
 
 
    procedure IO_Write

@@ -87,4 +87,9 @@ package body spi_accel is
                          Z => d.Zacc);
    end read;
 
+   function id (product : out Unsigned_8) return Unsigned_8 is
+   begin
+      return mpu6000_spi.Id (gyro, product);
+   end id;
+
 end spi_accel;

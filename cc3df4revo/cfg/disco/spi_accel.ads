@@ -1,5 +1,6 @@
 with Config; use Config;
 with LIS3DSH.SPI; use LIS3DSH.SPI;
+with Interfaces; use Interfaces;
 
 package spi_accel is
 
@@ -11,6 +12,8 @@ package spi_accel is
       end record;
 
    function read return accel_data;
+
+   function id (product : out Unsigned_8) return Unsigned_8;
 
 private
 
