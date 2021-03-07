@@ -12,6 +12,7 @@ package spi_accel is
    type accel_data is
       record
          X, Y, Z : Short_Integer;
+         GX, GY, GZ : Short_Integer;
       end record;
 
    function read return accel_data;

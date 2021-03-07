@@ -84,7 +84,10 @@ package body spi_accel is
    begin
       return accel_data'(X => d.Xacc,
                          Y => d.Yacc,
-                         Z => d.Zacc);
+                         Z => d.Zacc,
+                         GX => d.Xang,
+                         GY => d.Yang,
+                         GZ => d.Zang);
    end read;
 
    function id (product : out Unsigned_8) return Unsigned_8 is

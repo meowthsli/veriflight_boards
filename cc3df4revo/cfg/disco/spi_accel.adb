@@ -93,7 +93,10 @@ package body spi_accel is
       gyro.Get_Accelerations (Axes => axes);
       return accel_data'(X => Short_Integer (axes.X),
                          Y => Short_Integer (axes.Y),
-                         Z => Short_Integer (axes.Z));
+                         Z => Short_Integer (axes.Z),
+                         GX => 0,
+                         GY => 0,
+                         GZ => 0);
    end read;
 
    function id (product : out Unsigned_8) return Unsigned_8 is
