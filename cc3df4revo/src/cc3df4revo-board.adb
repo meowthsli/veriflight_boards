@@ -8,6 +8,7 @@ with STM32_SVD.RCC; use STM32_SVD.RCC;
 with Config;
 with spi_accel;
 with Ada.Real_Time; use Ada.Real_Time;
+with sbus_commander; pragma Unreferenced (sbus_commander);
 
 package body cc3df4revo.Board is
    package IC renames Interfaces.C;
